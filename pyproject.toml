@@ -5,7 +5,14 @@ description = "Add your description here"
 authors = [
     { name = "nac-39", email = "83295760+nac-39@users.noreply.github.com" }
 ]
-dependencies = []
+dependencies = [
+    "ipykernel>=6.29.5",
+    "pip>=24.2",
+    "notebook>=7.2.2",
+    "transformers>=4.45.2",
+    "datasets>=3.0.1",
+    "tokenizers>=0.20.1",
+]
 readme = "README.md"
 requires-python = ">= 3.8"
 
@@ -16,6 +23,12 @@ build-backend = "hatchling.build"
 [tool.rye]
 managed = true
 dev-dependencies = []
+
+# [tool.uv]
+# numpy = [
+#   {version = ">=1.26", python = ">=3.9"},
+#   {version = "<1.25", python = "=3.8"}
+# ]
 
 [tool.hatch.metadata]
 allow-direct-references = true
