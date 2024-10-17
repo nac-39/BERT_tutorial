@@ -26,4 +26,6 @@ ipython_config.py
 
 
 datasets/*
+data/*
 !datasets/.gitkeep
+!data/.gitkeep
