@@ -1,6 +1,10 @@
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 import random
 import itertools
+from bert_tutorial.tokenizer import SpecialToken, init_tokenizer
+from bert_tutorial.data_loader import (
+    generate_q_and_a_pairs,
+)
 
 
 class BERTDataset(Dataset):
@@ -35,7 +39,7 @@ class BERTDataset(Dataset):
                 if prob < 0.8:
                     # 80%の確率で[MASK]に置き換える
                     for _ in range(len(token_id)):
-                        output.append(self.tokenizer.vocab("[MASK]"))
+                        output.append(self.tokenizer.vocab(SpecialToken.MASK))
 
                 # 10%の確率でランダムな単語に置き換える
                 elif prob < 0.9:
@@ -64,12 +68,26 @@ class BERTDataset(Dataset):
         return self.lines[index]
 
     def get_sent(self, index: int):
-        """ランダムな文章のペアを選択する"""
+        """ランダムな文章のペアを選択する
+        - 次文予測タスクのための`is_next`ラベルを付与
+        """
         text1, text2 = self.get_corpus_line(index)
         if random.choice([True, False]):
             is_next_label = 1
             return text1, text2, is_next_label
         else:
-            random_text = self.get_random_line(index)
+            random_text = self.get_random_line()
             is_next_label = 0
             return text1, random_text, is_next_label
+
+    def get_random_line(self):
+        """ランダムな文章を返す"""
+        return self.lines[random.randrange(len(self.lines))][1]
+
+
+if __name__ == "__main__":
+    pairs = generate_q_and_a_pairs()
+    tokenizer = init_tokenizer(pairs)
+    train_data = BERTDataset(pairs, seq_len=64, tokenizer=tokenizer)
+    train_loader = DataLoader(train_data, batch_size=32, shuffle=True, pin_memory=True)
+    print(train_data[random.randrange(len(train_data))])

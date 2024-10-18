@@ -15,8 +15,8 @@ MAX_CONVERSATION_PAIRS = 100
 
 
 class SpecialToken(StrEnum):
-    PAD = "[PAD]" # 文頭
-    SEP = "[SEP]" # 文末
+    PAD = "[PAD]"  # 文頭
+    SEP = "[SEP]"  # 文末
     UNK = "[UNK]"
     CLS = "[CLS]"
     MASK = "[MASK]"
@@ -72,14 +72,19 @@ def train_tokenizer(paths):
     tokenizer = BertTokenizer.from_pretrained(
         str(TOKENIZER_DIR / "bert-it-vocab.txt"), local_files_only=True
     )
+    return tokenizer
+
+
+def init_tokenizer(pairs):
+    _prepare_data_dir()
+    try:
+        _save_conversations(pairs)
+    except FileExistsError as _:
+        pass
+    conversation_paths = _data_paths()
+    return train_tokenizer(conversation_paths)
 
 
 if __name__ == "__main__":
     pairs = generate_q_and_a_pairs()
-    _prepare_data_dir()
-    try:
-        _save_conversations(pairs)
-    except FileExistsError as e:
-        pass
-    conversation_paths = _data_paths()
-    train_tokenizer(conversation_paths)
+    init_tokenizer()
