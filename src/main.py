@@ -6,7 +6,7 @@ from bert_tutorial import (
     generate_q_and_a_pairs,
     init_tokenizer,
 )
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 
 
 MAX_LEN = 64
@@ -23,7 +23,7 @@ if __name__ == "__main__":
     )
 
     bert_lm = BERTLM(bert_model, len(tokenizer.vocab))
-    bert_trainer = BERTTrainer(bert_lm, train_loader, device="cpu")
+    bert_trainer = BERTTrainer(bert_lm, train_loader, device="cuda")
     epochs = 20
 
     for epoch in range(epochs):
