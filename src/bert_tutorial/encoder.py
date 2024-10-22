@@ -74,3 +74,42 @@ class MultiHeadAttention(nn.Module):
 
         # (batch_size, max_len, d_model)
         return self.output_linear(context)
+
+
+class FeedForwad(nn.Module):
+    def __init__(self, d_model: int, middle_dim: int = 2048, drouout: float = 0.1):
+        super().__init__()
+        self.fc1 = nn.Linear(d_model, middle_dim)
+        self.fc2 = nn.Linear(middle_dim, d_model)
+        self.dropout = nn.Dropout(drouout)
+        self.activation = nn.GELU()
+
+    def forward(self, x):
+        out = self.fc1(x)
+        out = self.activation(out)
+        out = self.dropout(out)
+        out = self.fc2(out)
+        return out
+
+
+class EncoderLayer(nn.Module):
+    def __init__(self, d_model=768, heads=12, feed_forward_hidden=768 * 4, dropout=0.1):
+        super().__init__()
+        self.layer_norm = nn.LayerNorm(d_model)
+        self.self_multihead = MultiHeadAttention(heads, d_model)
+        self.feed_forwad = FeedForwad(d_model, middle_dim=feed_forward_hidden)
+        self.dropout = nn.Dropout(dropout)
+
+    def forwad(self, embeddings, mask):
+        # embeddings: (batch_size, max_len, d_model)
+        # encoder mask: (batch_size, 1, 1, max_len)
+        # result: (batch_size, max_len, d_model)
+        interacted = self.dropout(
+            self.self_multihead(embeddings, embeddings, embeddings, mask)
+        )
+        # 残差レイヤー？勾配消失しないようにする。
+        interacted = self.layer_norm(interacted + embeddings)
+        # ボトルネック
+        feed_forward_out = self.dropout(self.feed_forward(interacted))
+        encoded = self.layer_norm(feed_forward_out + interacted)
+        return encoded
