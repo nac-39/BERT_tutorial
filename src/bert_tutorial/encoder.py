@@ -16,9 +16,9 @@ class MultiHeadAttention(nn.Module):
         self.query = nn.Linear(in_features=d_model, out_features=d_model)
         self.key = nn.Linear(in_features=d_model, out_features=d_model)
         self.value = nn.Linear(in_features=d_model, out_features=d_model)
-        self.output_liner = nn.Linear(in_features=d_model, out_features=d_model)
+        self.output_linear = nn.Linear(in_features=d_model, out_features=d_model)
 
-    def forwad(
+    def forward(
         self,
         query: torch.Tensor,
         key: torch.Tensor,
@@ -97,10 +97,10 @@ class EncoderLayer(nn.Module):
         super().__init__()
         self.layer_norm = nn.LayerNorm(d_model)
         self.self_multihead = MultiHeadAttention(heads, d_model)
-        self.feed_forwad = FeedForwad(d_model, middle_dim=feed_forward_hidden)
+        self.feed_forward = FeedForwad(d_model, middle_dim=feed_forward_hidden)
         self.dropout = nn.Dropout(dropout)
 
-    def forwad(self, embeddings, mask):
+    def forward(self, embeddings, mask):
         # embeddings: (batch_size, max_len, d_model)
         # encoder mask: (batch_size, 1, 1, max_len)
         # result: (batch_size, max_len, d_model)

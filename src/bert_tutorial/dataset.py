@@ -80,7 +80,7 @@ class BERTDataset(Dataset):
                 if prob < 0.8:
                     # 80%の確率で[MASK]に置き換える
                     for _ in range(len(token_id)):
-                        output.append(self.tokenizer.vocab(SpecialToken.MASK))
+                        output.append(self.tokenizer.vocab[SpecialToken.MASK])
 
                 # 10%の確率でランダムな単語に置き換える
                 elif prob < 0.9:
