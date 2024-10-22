@@ -1,3 +1,4 @@
+import torch
 from torch.optim import Adam
 from bert_tutorial import ScheduledOptim
 from torch import nn
@@ -104,4 +105,10 @@ class BERTTrainer:
             f"EP{epoch}, {mode}: \
             avg_loss={avg_loss / len(data_iter)}, \
             total_acc={total_correct * 100.0 / total_element}"
+        )
+        
+        # モデルをセーブする
+        torch.save(
+            self.model.state_dict(),
+            f"bert_pretrain_epoch_{epoch}.pt",
         )
