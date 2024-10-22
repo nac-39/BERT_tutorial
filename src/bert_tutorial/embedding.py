@@ -19,6 +19,10 @@ class PositionalEmbedding(torch.nn.Module):
         self.pe = pe.unsqueeze(0)  # unsqueeze: 指定した位置にサイズ1の次元を挿入する
 
     def forward(self, x: torch.Tensor):
+        self.pe = self.pe.to(x.device)
+        assert (
+            x.device == self.pe.device
+        ), "入力テンソルと positional encoding テンソルは同じデバイスにある必要があります"
         return self.pe
 
 
@@ -53,6 +57,6 @@ class BERTEmbedding(torch.nn.Module):
         self.position = PositionalEmbedding(d_model=embed_size, max_len=seq_len)
         self.dropout = torch.nn.Dropout(p=dropout)
 
-    def forward(self, sequence, segment_label):
+    def forward(self, sequence: torch.Tensor, segment_label: torch.Tensor):
         x = self.token(sequence) + self.position(sequence) + self.segment(segment_label)
         return self.dropout(x)

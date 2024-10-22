@@ -1,3 +1,4 @@
+import torch
 from torch import nn
 from bert_tutorial import BERTEmbedding, EncoderLayer
 
@@ -36,7 +37,8 @@ class BERT(nn.Module):
             ]
         )
 
-    def forward(self, x, segment_info):
+    def forward(self, x: torch.Tensor, segment_info: torch.Tensor):
+        assert x.device == segment_info.device
         # PADトークンへのマスキング
         # (batch_size, 1, seq_len, seq_len)
         mask = (x > 0).unsqueeze(1).repeat(1, x.size(1), 1).unsqueeze(1)
@@ -108,6 +110,7 @@ class BERTLM(nn.Module):
         self.next_sentence = NextSentencePrediction(self.bert.d_model)
         self.mask_lm = MaskedLanguageModel(self.bert.d_model, vocab_size)
 
-    def forward(self, x, segment_label):
+    def forward(self, x: torch.Tensor, segment_label: torch.Tensor):
+        assert x.device == segment_label.device
         x = self.bert(x, segment_label)
         return self.next_sentence(x), self.mask_lm(x)

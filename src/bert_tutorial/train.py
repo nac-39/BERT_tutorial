@@ -18,7 +18,7 @@ class BERTTrainer:
         device="cuda",
     ):
         self.device = device
-        self.model = model
+        self.model = model.to(device)
         self.train_data = train_dataloader
         self.test_data = test_dataloader
 

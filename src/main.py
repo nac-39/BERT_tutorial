@@ -14,7 +14,7 @@ MAX_LEN = 64
 if __name__ == "__main__":
     pairs = generate_q_and_a_pairs()
     tokenizer = init_tokenizer(pairs)
-    train_data = BERTDataset(pairs, seq_len=MAX_LEN, tokenizer=tokenizer)
+    train_data = BERTDataset(pairs, seq_len=MAX_LEN, tokenizer=tokenizer, device="cuda")
 
     train_loader = DataLoader(train_data, batch_size=32, shuffle=True, pin_memory=True)
 

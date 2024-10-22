@@ -9,11 +9,12 @@ from bert_tutorial.data_loader import (
 
 
 class BERTDataset(Dataset):
-    def __init__(self, data_pair: tuple[str, str], tokenizer, seq_len: int = 64):
+    def __init__(self, data_pair: tuple[str, str], tokenizer, seq_len: int = 64, device="cuda"):
         self.tokenizer = tokenizer
         self.seq_len = seq_len
         self.corpus_lines = len(data_pair)
         self.lines = data_pair
+        self.device = device
 
     def __len__(self):
         return self.corpus_lines
