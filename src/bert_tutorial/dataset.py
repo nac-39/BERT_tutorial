@@ -1,3 +1,4 @@
+import torch
 from torch.utils.data import Dataset, DataLoader
 import random
 import itertools
@@ -18,10 +19,50 @@ class BERTDataset(Dataset):
         return self.corpus_lines
 
     def __getitem__(self, item):
-
         # ステップ1: ネガティブなものもポジティブなものも含めて、ランダムな文章のペアを選択
         text1, text2, is_next_label = self.get_sent(item)
         # ステップ2: 文章の中のランダムな単語をMASKかランダムな単語に置き換える
+        t1_random, t1_label = self.random_word(text1)
+        t2_random, t2_label = self.random_word(text2)
+
+        # ステップ3: CLAトークンとSEPトークンを文章の開始と終了に追加する
+        # ラベルにPADトークンを追加する
+        text1 = (
+            [self.tokenizer.vocab[SpecialToken.CLS]]
+            + t1_random
+            + [self.tokenizer.vocab[SpecialToken.SEP]]
+        )
+        text2 = t2_random + [self.tokenizer.vocab[SpecialToken.SEP]]
+        t1_label = (
+            [self.tokenizer.vocab[SpecialToken.PAD]]
+            + t1_label
+            + [self.tokenizer.vocab[SpecialToken.PAD]]
+        )
+        t2_label = t2_label + [self.tokenizer.vocab[SpecialToken.PAD]]
+
+        # ステップ4: テキスト1, 2を一つの入力に結合する
+        # 文章をseq_lenと同じにするためにPADトークンを追加する
+        segment_label = (
+            [1 for _ in range(len(text1))] + [2 for _ in range(len(text2))]
+        )[: self.seq_len]
+        bert_input = (text1 + text2)[: self.seq_len]
+        bert_label = (t1_label + t2_label)[: self.seq_len]
+        padding = [
+            self.tokenizer.vocab[SpecialToken.PAD]
+            for _ in range(self.seq_len - len(bert_input))
+        ]
+
+        bert_input.extend(padding)
+        bert_label.extend(padding)
+        segment_label.extend(padding)
+        output = {
+            "bert_input": bert_input,
+            "bert_label": bert_label,
+            "segment_label": segment_label,
+            "is_next": is_next_label,
+        }
+
+        return {key: torch.tensor(value) for key, value in output.items()}
 
     def random_word(self, sentence):
         tokens = sentence.split()
